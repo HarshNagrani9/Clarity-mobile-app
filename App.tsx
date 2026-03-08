@@ -1,16 +1,70 @@
-import { StatusBar } from 'expo-status-bar';
-import { Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import LandingScreen from './screens/LandingScreen';
+import LoginScreen from './screens/LoginScreen';
+import SignupScreen from './screens/SignupScreen';
+import SignupSuccessScreen from './screens/SignupSuccessScreen';
+import LoginSuccessScreen from './screens/LoginSuccessScreen';
+import ActivityLogScreen from './screens/ActivityLogScreen';
+import MainTabs from './navigation/MainTabs';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { auth } from './lib/firebase';
+import { View, ActivityIndicator } from 'react-native';
+import { AppProvider } from './lib/store';
+
+export type RootStackParamList = {
+    Landing: undefined;
+    Login: undefined;
+    Signup: undefined;
+    SignupSuccess: undefined;
+    LoginSuccess: undefined;
+    Main: undefined; // The bottom tabs navigator
+    ActivityLog: undefined;
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
-  return (
-    <View className="flex-1 items-center justify-center bg-zinc-950">
-      <Text className="text-xl font-bold text-white tracking-widest text-center px-4">
-        Mobile App Environment
-      </Text>
-      <Text className="text-zinc-400 mt-2 text-center text-sm">
-        NativeWind & Tailwind are working perfectly!
-      </Text>
-      <StatusBar style="light" />
-    </View>
-  );
+    const [initializing, setInitializing] = useState(true);
+    const [user, setUser] = useState<User | null>(null);
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            setUser(user);
+            if (initializing) setInitializing(false);
+        });
+        return unsubscribe;
+    }, [initializing]);
+
+    if (initializing) {
+        return (
+            <View style={{ flex: 1, backgroundColor: '#0f0f0f', justifyContent: 'center', alignItems: 'center' }}>
+                <ActivityIndicator size="large" color="#a3e635" />
+            </View>
+        );
+    }
+
+    return (
+        <AppProvider>
+            <NavigationContainer>
+                <Stack.Navigator
+                    initialRouteName={user ? "Main" : "Landing"}
+                    screenOptions={{
+                        headerShown: false,
+                        contentStyle: { backgroundColor: '#0f0f0f' },
+                        animation: 'fade',
+                    }}
+                >
+                    <Stack.Screen name="Landing" component={LandingScreen} />
+                    <Stack.Screen name="Login" component={LoginScreen} />
+                    <Stack.Screen name="Signup" component={SignupScreen} />
+                    <Stack.Screen name="SignupSuccess" component={SignupSuccessScreen} />
+                    <Stack.Screen name="LoginSuccess" component={LoginSuccessScreen} />
+                    <Stack.Screen name="Main" component={MainTabs} />
+                    <Stack.Screen name="ActivityLog" component={ActivityLogScreen} options={{ presentation: 'modal' }} />
+                </Stack.Navigator>
+            </NavigationContainer>
+        </AppProvider>
+    );
 }

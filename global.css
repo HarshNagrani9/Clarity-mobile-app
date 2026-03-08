@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --background: #0f0f0f;
+        --foreground: #ffffff;
+
+        /* Neons */
+        --lime-400: #a3e635;
+        --pink-500: #ec4899;
+        --cyan-400: #22d3ee;
+        --purple-500: #a855f7;
+
+        /* Darks */
+        --gray-900: #1a1a1a;
+        --gray-800: #222222;
+    }
+}
+
+/* Animations equivalent to Tailwind */
+@layer utilities {
+    .animate-pulse-slow {
+        animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+}
