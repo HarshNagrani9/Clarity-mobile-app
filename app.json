@@ -22,7 +22,8 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.harshnagrani0910.mobileapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -30,6 +31,11 @@
     "plugins": [
       "expo-web-browser",
       "@react-native-community/datetimepicker"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "54d91ce1-4ad1-4eb8-a6cd-bcdeb854c69b"
+      }
+    }
   }
 }
