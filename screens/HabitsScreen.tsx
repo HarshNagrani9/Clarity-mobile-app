@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView, Pressable, Platform, StatusBar } from 'react-native';
 import { useApp } from '../lib/store';
 import { format, addDays, subDays, isSameDay } from 'date-fns';
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react-native';
@@ -92,6 +92,7 @@ const s = StyleSheet.create({
     safeArea: {
         flex: 1,
         backgroundColor: '#0f0f0f',
+        paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 0) : 0,
     },
     header: {
         flexDirection: 'row',

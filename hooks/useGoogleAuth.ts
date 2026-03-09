@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import * as WebBrowser from 'expo-web-browser';
+import * as AuthSession from 'expo-auth-session';
 import { signInWithCustomToken } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 
@@ -28,11 +29,12 @@ export const useGoogleAuth = (onSuccess?: () => void, onError?: (error: string) 
         try {
             const authUrl = `${API_BASE_URL}/api/auth/google/start?client_id=${encodeURIComponent(GOOGLE_CLIENT_ID)}`;
 
-            console.log('[GoogleAuth] Opening server-side auth flow...');
+            const redirectUri = AuthSession.makeRedirectUri({ scheme: 'clarity' });
+            console.log('[GoogleAuth] Opening server-side auth flow with redirect:', redirectUri);
 
             const result = await WebBrowser.openAuthSessionAsync(
                 authUrl,
-                'clarity://'
+                redirectUri
             );
 
             console.log('[GoogleAuth] Result:', result.type);

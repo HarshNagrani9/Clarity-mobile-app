@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, Pressable } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, Pressable, Platform, StatusBar } from 'react-native';
 import { useApp } from '../lib/store';
 import { Plus, LayoutGrid, CalendarDays } from 'lucide-react-native';
 import { BrutalistButton } from '../components/ui/BrutalistButton';
@@ -116,6 +116,7 @@ const s = StyleSheet.create({
     safeArea: {
         flex: 1,
         backgroundColor: '#0f0f0f',
+        paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
     },
     header: {
         flexDirection: 'row',

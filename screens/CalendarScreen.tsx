@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, Platform, StatusBar } from 'react-native';
 import { useApp } from '../lib/store';
 import { format, addDays, subDays, isSameDay } from 'date-fns';
 import { ChevronLeft, ChevronRight, CheckCircle2, Calendar as CalIcon, Play, Target, ListTodo } from 'lucide-react-native';
@@ -224,7 +224,7 @@ const s = StyleSheet.create({
     },
     header: {
         paddingHorizontal: 20,
-        paddingTop: 60,
+        paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 0) + 20 : 60,
         paddingBottom: 20,
         backgroundColor: '#151515',
         borderBottomWidth: 1,

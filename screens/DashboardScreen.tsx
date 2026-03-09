@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, Alert, Modal, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, Alert, Modal, TouchableWithoutFeedback, Platform, StatusBar } from 'react-native';
 import { LogOut, User as UserIcon } from 'lucide-react-native';
 import { auth } from '../lib/firebase';
 import { signOut } from 'firebase/auth';
@@ -53,8 +53,8 @@ export default function DashboardScreen({ navigation }: { navigation: any }) {
         try {
             await signOut(auth);
             setShowProfile(false);
-            // Force reset back to Landing stack after signing out
-            navigation.getParent()?.reset({ index: 0, routes: [{ name: 'Landing' }] });
+            // Force reset back to Login stack after signing out
+            navigation.getParent()?.reset({ index: 0, routes: [{ name: 'Login' }] });
         } catch (error: any) {
             Alert.alert('Error logging out', error.message);
         }
@@ -79,25 +79,21 @@ export default function DashboardScreen({ navigation }: { navigation: any }) {
                     title="Daily Habits"
                     value={`${habitPercentage}%`}
                     subtitle={`${dailyHabitsCompletedToday} / ${totalDailyHabits} completed`}
-                    icon={<CheckCircle size={18} color="#666" />}
                 />
                 <StatCard
                     title="Active Goals"
                     value={activeGoals}
                     subtitle="Keep pushing!"
-                    icon={<Target size={18} color="#666" />}
                 />
                 <StatCard
                     title="Pending Tasks"
                     value={pendingTasks}
                     subtitle={`${highPriorityTasks} high priority`}
-                    icon={<ListTodo size={18} color="#666" />}
                 />
                 <StatCard
                     title="Best Streak"
                     value={`${maxStreak} Days`}
                     subtitle="Consistency is key"
-                    icon={<TrendingUp size={18} color="#666" />}
                 />
             </View>
 
@@ -150,7 +146,7 @@ const s = StyleSheet.create({
     },
     content: {
         padding: 24,
-        paddingTop: 60, // account for safe area
+        paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 0) + 20 : 60,
     },
     headerContainer: {
         flexDirection: 'row',

@@ -10,11 +10,11 @@ import ActivityLogScreen from './screens/ActivityLogScreen';
 import MainTabs from './navigation/MainTabs';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from './lib/firebase';
-import { View, ActivityIndicator } from 'react-native';
+import { View, Platform, StatusBar } from 'react-native';
 import { AppProvider } from './lib/store';
+import { ModernLoader } from './components/ui/ModernLoader';
 
 export type RootStackParamList = {
-    Landing: undefined;
     Login: undefined;
     Signup: undefined;
     SignupSuccess: undefined;
@@ -38,25 +38,20 @@ export default function App() {
     }, [initializing]);
 
     if (initializing) {
-        return (
-            <View style={{ flex: 1, backgroundColor: '#0f0f0f', justifyContent: 'center', alignItems: 'center' }}>
-                <ActivityIndicator size="large" color="#a3e635" />
-            </View>
-        );
+        return <ModernLoader />;
     }
 
     return (
         <AppProvider>
             <NavigationContainer>
                 <Stack.Navigator
-                    initialRouteName={user ? "Main" : "Landing"}
+                    initialRouteName={user ? "Main" : "Login"}
                     screenOptions={{
                         headerShown: false,
                         contentStyle: { backgroundColor: '#0f0f0f' },
                         animation: 'fade',
                     }}
                 >
-                    <Stack.Screen name="Landing" component={LandingScreen} />
                     <Stack.Screen name="Login" component={LoginScreen} />
                     <Stack.Screen name="Signup" component={SignupScreen} />
                     <Stack.Screen name="SignupSuccess" component={SignupSuccessScreen} />
