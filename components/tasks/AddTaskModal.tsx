@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Modal, TextInput, Pressable, Platform, Alert } from 'react-native';
+import { View, Text, StyleSheet, Modal, TextInput, Pressable, Platform, Alert, StatusBar } from 'react-native';
 import { BrutalistButton } from '../ui/BrutalistButton';
 import { X, Calendar } from 'lucide-react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -156,6 +156,7 @@ const s = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         padding: 20,
+        paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 0) + 10 : 20,
         borderBottomWidth: 1,
         borderBottomColor: '#222',
         backgroundColor: '#151515',

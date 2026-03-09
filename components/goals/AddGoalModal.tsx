@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Modal, TextInput, Pressable, ScrollView, Alert, Platform } from 'react-native';
+import { View, Text, StyleSheet, Modal, TextInput, Pressable, ScrollView, Alert, Platform, StatusBar } from 'react-native';
 import { BrutalistButton } from '../ui/BrutalistButton';
 import { X, Plus, Calendar as CalendarIcon } from 'lucide-react-native';
 import { useApp } from '../../lib/store';
@@ -277,6 +277,7 @@ const s = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         padding: 20,
+        paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 0) + 10 : 20,
         borderBottomWidth: 1,
         borderBottomColor: '#222',
         backgroundColor: '#151515',
