@@ -243,9 +243,9 @@ export default function LoginScreen({ navigation }: { navigation: LoginScreenPro
 
 const s = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#0f0f0f' },
-    scroll: { flexGrow: 1, padding: 24, justifyContent: 'center' },
+    scroll: { flexGrow: 1, padding: 24, paddingTop: 60, paddingBottom: 60, justifyContent: 'center' },
 
-    header: { flexDirection: 'row', alignItems: 'center', gap: 10, alignSelf: 'center', marginBottom: 40 },
+    header: { flexDirection: 'row', alignItems: 'center', gap: 10, alignSelf: 'center', marginBottom: 50 },
     iconBox: {
         width: 36, height: 36, backgroundColor: '#a3e635', borderWidth: 2, borderColor: '#000',
         borderRadius: 8, alignItems: 'center', justifyContent: 'center',
@@ -262,7 +262,7 @@ const s = StyleSheet.create({
     errorBox: { backgroundColor: 'rgba(239,68,68,0.1)', borderWidth: 1, borderColor: '#ef4444', padding: 12, borderRadius: 8, marginBottom: 16 },
     errorText: { color: '#ef4444', fontSize: 12, textAlign: 'center', fontWeight: 'bold' },
 
-    footerLinks: { flexDirection: 'row', justifyContent: 'center', marginTop: 32 },
+    footerLinks: { flexDirection: 'row', justifyContent: 'center', marginTop: 48 },
     linkText: { color: '#9ca3af', fontSize: 13 },
     linkHighlight: { color: '#a3e635', fontSize: 13, textDecorationLine: 'underline', fontWeight: 'bold' },
 
