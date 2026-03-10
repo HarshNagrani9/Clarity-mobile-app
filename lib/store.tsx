@@ -71,8 +71,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         return () => unsubscribe();
     }, []);
 
-    const fetchData = async (uid: string, token?: string) => {
-        setIsLoadingData(true);
+    const fetchData = async (uid: string, token?: string, isBackgroundRefresh: boolean = false) => {
+        if (!isBackgroundRefresh) setIsLoadingData(true);
         try {
             const [habitsRes, goalsRes, tasksRes, activitiesRes, eventsRes] = await Promise.all([
                 authFetch(`/api/habits?userId=${uid}`, {}, token),
@@ -97,13 +97,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         } catch (error) {
             console.error("Failed to fetch data in mobile store", error);
         } finally {
-            setIsLoadingData(false);
+            if (!isBackgroundRefresh) setIsLoadingData(false);
         }
     };
 
     const refreshData = async () => {
         if (userId) {
-            await fetchData(userId);
+            await fetchData(userId, undefined, true);
         }
     };
 
@@ -118,7 +118,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
                     method: 'POST',
                     body: JSON.stringify({ userId, type, description }),
                 });
-                await fetchData(userId); // Refresh strictly to get exact DB rows
+                await fetchData(userId, undefined, true); // Refresh strictly to get exact DB rows
             } catch (e) {
                 console.error("Failed to log activity remotely", e);
             }

@@ -243,9 +243,9 @@ export default function LoginScreen({ navigation }: { navigation: LoginScreenPro
 
 const s = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#0f0f0f' },
-    scroll: { flexGrow: 1, padding: 24, paddingTop: 60, paddingBottom: 60, justifyContent: 'center' },
+    scroll: { flexGrow: 1, padding: 24, paddingTop: 32, paddingBottom: 32, justifyContent: 'center' },
 
-    header: { flexDirection: 'row', alignItems: 'center', gap: 10, alignSelf: 'center', marginBottom: 50 },
+    header: { flexDirection: 'row', alignItems: 'center', gap: 10, alignSelf: 'center', marginBottom: 32 },
     iconBox: {
         width: 36, height: 36, backgroundColor: '#a3e635', borderWidth: 2, borderColor: '#000',
         borderRadius: 8, alignItems: 'center', justifyContent: 'center',
