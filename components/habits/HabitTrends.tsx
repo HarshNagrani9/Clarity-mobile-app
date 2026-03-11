@@ -1,104 +1,147 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
-import Svg, { Path, Defs, LinearGradient, Stop, Line } from 'react-native-svg';
-import * as d3Shape from 'd3-shape';
+import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { useApp } from '../../lib/store';
 import { subDays, format } from 'date-fns';
 import { BrutalistCard } from '../ui/BrutalistCard';
+import { Flame } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
+
+interface RingData {
+    name: string;
+    completedDays: number;
+    totalDays: number;
+    color: string;
+    streak: number;
+}
 
 export function HabitTrends() {
     const { habits } = useApp();
 
-    // Replicate webapp "Daily Momentum" exact logic
-    const dailyData = useMemo(() => {
-        const dailyHabits = habits.filter(h => h.frequency === 'daily' || h.frequency === 'custom');
-
-        return Array.from({ length: 14 }).map((_, i) => {
-            const date = subDays(new Date(), 13 - i);
-            const dateStr = format(date, 'yyyy-MM-dd');
-            const displayDate = format(date, 'MMM dd');
-
-            let completedCount = 0;
-            dailyHabits.forEach(h => {
-                if (h.completedDates.includes(dateStr)) {
-                    completedCount++;
-                }
+    const ringData: RingData[] = useMemo(() => {
+        return habits.map((habit) => {
+            const last7Days = Array.from({ length: 7 }).map((_, i) => {
+                const date = subDays(new Date(), 6 - i);
+                return format(date, 'yyyy-MM-dd');
             });
 
+            const completedDays = last7Days.filter(d => habit.completedDates.includes(d)).length;
+
             return {
-                name: displayDate,
-                completed: completedCount,
+                name: habit.title,
+                completedDays,
+                totalDays: 7,
+                color: habit.color || '#3b82f6',
+                streak: habit.streak || 0,
             };
         });
     }, [habits]);
 
-    // Dimensions
-    const chartHeight = 180;
-    const chartWidth = width - 40 - 32; // window - screenPadding - cardPadding
-    const yMax = Math.max(...dailyData.map(d => d.completed), 4); // Keep a scale of at least 4
+    if (habits.length === 0) {
+        return (
+            <BrutalistCard style={s.card}>
+                <Text style={s.title}>Weekly Rings</Text>
+                <Text style={s.emptyText}>Add habits to see your progress rings!</Text>
+            </BrutalistCard>
+        );
+    }
 
-    // Scale X to chart width
-    const scaleX = (index: number) => (index / (dailyData.length - 1)) * chartWidth;
-    // Scale Y to chart height (invert Y because SVG 0,0 is top-left)
-    const scaleY = (value: number) => chartHeight - (value / yMax) * chartHeight;
+    const ringSize = Math.min(width - 80, 240);
+    const center = ringSize / 2;
+    const strokeWidth = Math.max(10, 28 - (habits.length * 3));
+    const gap = 4;
 
-    // Generate Area Path (Bottom filled)
-    const areaGenerator = d3Shape.area<{ completed: number }>()
-        .x((d, i) => scaleX(i))
-        .y0(chartHeight)
-        .y1((d) => scaleY(d.completed))
-        .curve(d3Shape.curveMonotoneX);
-
-    // Generate Line Path (Top strict line)
-    const lineGenerator = d3Shape.line<{ completed: number }>()
-        .x((d, i) => scaleX(i))
-        .y((d) => scaleY(d.completed))
-        .curve(d3Shape.curveMonotoneX);
-
-    const areaPath = areaGenerator(dailyData) || '';
-    const linePath = lineGenerator(dailyData) || '';
+    // Calculate total completion for the center stat
+    const totalCompleted = ringData.reduce((sum, r) => sum + r.completedDays, 0);
+    const totalPossible = ringData.reduce((sum, r) => sum + r.totalDays, 0);
+    const overallPercent = totalPossible > 0 ? Math.round((totalCompleted / totalPossible) * 100) : 0;
 
     return (
         <BrutalistCard style={s.card}>
             <View style={s.header}>
-                <Text style={s.title}>Completion Trends</Text>
-                <Text style={s.subtitle}>Daily Momentum (Last 14 Days)</Text>
+                <View>
+                    <Text style={s.title}>Weekly Rings</Text>
+                    <Text style={s.subtitle}>Last 7 days per habit</Text>
+                </View>
             </View>
 
-            <View style={s.chartContainer}>
-                {/* Y-Axis Guidelines */}
-                <View style={s.gridLinesAbsolute}>
-                    {[0, 0.25, 0.5, 0.75, 1].map((ratio) => {
-                        const val = Math.round(yMax * ratio);
+            <View style={s.ringContainer}>
+                <Svg width={ringSize} height={ringSize}>
+                    <Defs>
+                        {ringData.map((ring, i) => (
+                            <LinearGradient key={`grad-${i}`} id={`ringGrad${i}`} x1="0" y1="0" x2="1" y2="1">
+                                <Stop offset="0%" stopColor={ring.color} stopOpacity={1} />
+                                <Stop offset="100%" stopColor={ring.color} stopOpacity={0.6} />
+                            </LinearGradient>
+                        ))}
+                    </Defs>
+
+                    {ringData.map((ring, index) => {
+                        const radius = center - (strokeWidth + gap) * index - strokeWidth / 2 - 4;
+                        if (radius <= 10) return null;
+
+                        const circumference = 2 * Math.PI * radius;
+                        const progress = ring.completedDays / ring.totalDays;
+                        const dashOffset = circumference * (1 - progress);
+
                         return (
-                            <View key={ratio} style={[s.gridLineWrapper, { top: scaleY(val) }]}>
-                                <Text style={s.yAxisLabel}>{val}</Text>
-                                <View style={s.dashLine} />
-                            </View>
+                            <React.Fragment key={index}>
+                                {/* Background track */}
+                                <Circle
+                                    cx={center}
+                                    cy={center}
+                                    r={radius}
+                                    stroke="#1E1E1E"
+                                    strokeWidth={strokeWidth}
+                                    fill="none"
+                                />
+                                {/* Progress arc */}
+                                <Circle
+                                    cx={center}
+                                    cy={center}
+                                    r={radius}
+                                    stroke={`url(#ringGrad${index})`}
+                                    strokeWidth={strokeWidth}
+                                    fill="none"
+                                    strokeDasharray={`${circumference}`}
+                                    strokeDashoffset={dashOffset}
+                                    strokeLinecap="round"
+                                    transform={`rotate(-90, ${center}, ${center})`}
+                                />
+                            </React.Fragment>
                         );
                     })}
-                </View>
-
-                {/* SVG Chart Layer */}
-                <Svg width={chartWidth} height={chartHeight} style={s.svg}>
-                    <Defs>
-                        <LinearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">
-                            <Stop offset="0%" stopColor="#06b6d4" stopOpacity={0.4} />
-                            <Stop offset="100%" stopColor="#06b6d4" stopOpacity={0.0} />
-                        </LinearGradient>
-                    </Defs>
-                    <Path d={areaPath} fill="url(#gradient)" />
-                    <Path d={linePath} fill="none" stroke="#06b6d4" strokeWidth={3} />
                 </Svg>
+
+                {/* Center stat */}
+                <View style={[s.centerStat, { width: ringSize, height: ringSize }]}>
+                    <Text style={s.centerPercent}>{overallPercent}%</Text>
+                    <Text style={s.centerLabel}>overall</Text>
+                </View>
             </View>
 
-            {/* X-Axis Labels (First, Middle, Last) */}
-            <View style={s.xAxis}>
-                <Text style={s.xLabel}>{dailyData[0].name}</Text>
-                <Text style={s.xLabel}>{dailyData[Math.floor(dailyData.length / 2)].name}</Text>
-                <Text style={s.xLabel}>Today</Text>
+            {/* Legend */}
+            <View style={s.legend}>
+                {ringData.map((ring, i) => (
+                    <View key={i} style={s.legendRow}>
+                        <View style={s.legendLeft}>
+                            <View style={[s.legendDot, { backgroundColor: ring.color }]} />
+                            <Text style={s.legendName} numberOfLines={1}>{ring.name}</Text>
+                        </View>
+                        <View style={s.legendRight}>
+                            <Text style={s.legendScore}>
+                                {ring.completedDays}/{ring.totalDays}
+                            </Text>
+                            {ring.streak > 0 && (
+                                <View style={s.streakBadge}>
+                                    <Flame size={10} color="#f97316" fill="#f97316" />
+                                    <Text style={s.streakNum}>{ring.streak}</Text>
+                                </View>
+                            )}
+                        </View>
+                    </View>
+                ))}
             </View>
         </BrutalistCard>
     );
@@ -109,6 +152,9 @@ const s = StyleSheet.create({
         marginBottom: 24,
     },
     header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         marginBottom: 16,
     },
     title: {
@@ -120,47 +166,86 @@ const s = StyleSheet.create({
     subtitle: {
         color: '#9ca3af',
         fontSize: 12,
-        marginTop: 4,
+        marginTop: 2,
     },
-    chartContainer: {
-        height: 180,
-        position: 'relative',
-        marginLeft: 20, // space for Y labels
-    },
-    gridLinesAbsolute: {
-        ...StyleSheet.absoluteFillObject,
-    },
-    gridLineWrapper: {
-        position: 'absolute',
-        left: -20,
-        right: 0,
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    yAxisLabel: {
+    emptyText: {
         color: '#666',
-        fontSize: 10,
-        width: 15,
+        fontSize: 13,
+        textAlign: 'center',
+        paddingVertical: 32,
+        fontFamily: 'monospace',
     },
-    dashLine: {
-        flex: 1,
-        height: 1,
-        backgroundColor: '#2A2A2A',
-        marginLeft: 5,
+    ringContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 20,
     },
-    svg: {
+    centerStat: {
         position: 'absolute',
-        top: 0,
-        left: 0, // already offset by chartContainer marginLeft
+        alignItems: 'center',
+        justifyContent: 'center',
     },
-    xAxis: {
+    centerPercent: {
+        color: '#fff',
+        fontSize: 28,
+        fontWeight: '900',
+        fontFamily: 'monospace',
+    },
+    centerLabel: {
+        color: '#666',
+        fontSize: 11,
+        fontWeight: 'bold',
+        textTransform: 'uppercase',
+        letterSpacing: 2,
+    },
+    legend: {
+        gap: 10,
+    },
+    legendRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginLeft: 20, // match chart offset
-        marginTop: 8,
+        alignItems: 'center',
     },
-    xLabel: {
-        color: '#666',
-        fontSize: 10,
-    }
+    legendLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        flex: 1,
+    },
+    legendDot: {
+        width: 10,
+        height: 10,
+        borderRadius: 5,
+    },
+    legendName: {
+        color: '#ccc',
+        fontSize: 13,
+        fontFamily: 'monospace',
+        flex: 1,
+    },
+    legendRight: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    legendScore: {
+        color: '#fff',
+        fontSize: 13,
+        fontWeight: 'bold',
+        fontFamily: 'monospace',
+    },
+    streakBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 2,
+        backgroundColor: 'rgba(249, 115, 22, 0.15)',
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 8,
+    },
+    streakNum: {
+        color: '#f97316',
+        fontSize: 11,
+        fontWeight: 'bold',
+    },
 });
