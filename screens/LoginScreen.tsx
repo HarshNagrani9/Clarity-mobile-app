@@ -250,7 +250,7 @@ const s = StyleSheet.create({
         width: 36, height: 36, backgroundColor: '#a3e635', borderWidth: 2, borderColor: '#000',
         borderRadius: 8, alignItems: 'center', justifyContent: 'center',
     },
-    headerTitle: { fontSize: 20, fontWeight: '900', color: '#fff', fontStyle: 'italic', letterSpacing: -1, fontFamily: 'monospace' },
+    headerTitle: { fontSize: 20, fontWeight: '900', color: '#fff', fontStyle: 'italic', letterSpacing: -1, fontFamily: 'monospace', paddingBottom: 4, overflow: 'visible' },
     h1: { fontSize: 32, fontWeight: '900', color: '#fff', lineHeight: 36, marginBottom: 8, textAlign: 'center' },
     subtitle: { color: '#9ca3af', fontSize: 13, textAlign: 'center', marginBottom: 32 },
 

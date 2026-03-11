@@ -178,24 +178,24 @@ export default function SignupScreen({ navigation }: { navigation: SignupScreenP
 
 const s = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#0f0f0f' },
-    scroll: { flexGrow: 1, padding: 24, paddingTop: 32, paddingBottom: 32, justifyContent: 'center' },
-    header: { flexDirection: 'row', alignItems: 'center', gap: 10, alignSelf: 'center', marginBottom: 32 },
+    scroll: { flexGrow: 1, padding: 24, paddingTop: 16, paddingBottom: 16, justifyContent: 'center' },
+    header: { flexDirection: 'row', alignItems: 'center', gap: 10, alignSelf: 'center', marginBottom: 16 },
     iconBox: {
         width: 36, height: 36, backgroundColor: '#a3e635', borderWidth: 2, borderColor: '#000',
         borderRadius: 8, alignItems: 'center', justifyContent: 'center',
     },
-    headerTitle: { fontSize: 20, fontWeight: '900', color: '#fff', fontStyle: 'italic', letterSpacing: -1, fontFamily: 'monospace' },
+    headerTitle: { fontSize: 20, fontWeight: '900', color: '#fff', fontStyle: 'italic', letterSpacing: -1, fontFamily: 'monospace', paddingBottom: 4, overflow: 'visible' },
     h1: { fontSize: 32, fontWeight: '900', color: '#fff', lineHeight: 36, marginBottom: 8, textAlign: 'center' },
-    subtitle: { color: '#9ca3af', fontSize: 13, textAlign: 'center', marginBottom: 32 },
+    subtitle: { color: '#9ca3af', fontSize: 13, textAlign: 'center', marginBottom: 20 },
     form: { width: '100%' },
     btn: { width: '100%', marginTop: 12 },
     errorBox: { backgroundColor: 'rgba(239,68,68,0.1)', borderWidth: 1, borderColor: '#ef4444', padding: 12, borderRadius: 8, marginBottom: 16 },
     errorText: { color: '#ef4444', fontSize: 12, textAlign: 'center', fontWeight: 'bold' },
-    footerLinks: { flexDirection: 'row', justifyContent: 'center', marginTop: 48 },
+    footerLinks: { flexDirection: 'row', justifyContent: 'center', marginTop: 24 },
     linkText: { color: '#9ca3af', fontSize: 13 },
     linkHighlight: { color: '#a3e635', fontSize: 13, textDecorationLine: 'underline', fontWeight: 'bold' },
 
-    orContainer: { flexDirection: 'row', alignItems: 'center', marginVertical: 24, paddingHorizontal: 16 },
+    orContainer: { flexDirection: 'row', alignItems: 'center', marginVertical: 16, paddingHorizontal: 16 },
     line: { flex: 1, height: 1, backgroundColor: '#333' },
     orText: { color: '#9ca3af', marginHorizontal: 16, fontSize: 12, fontWeight: 'bold' },
 });
