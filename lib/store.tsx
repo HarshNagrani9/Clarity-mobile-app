@@ -108,9 +108,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     };
 
     const logActivity = async (type: string, description: string) => {
-        // Optimistic update
+        // Optimistic update only — do NOT re-fetch all data here
         const newActivity = { id: Date.now(), type, description, createdAt: new Date().toISOString() };
-        setRecentActivities(prev => [newActivity, ...prev].slice(0, 10)); // Keep top 10
+        setRecentActivities(prev => [newActivity, ...prev].slice(0, 10));
 
         if (userId) {
             try {
@@ -118,7 +118,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
                     method: 'POST',
                     body: JSON.stringify({ userId, type, description }),
                 });
-                await fetchData(userId, undefined, true); // Refresh strictly to get exact DB rows
             } catch (e) {
                 console.error("Failed to log activity remotely", e);
             }
@@ -166,17 +165,20 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         const newStreak = calculateStreak(newCompletedDates);
         const updates = { completedDates: newCompletedDates, streak: newStreak };
 
+        // Optimistic update — this is the source of truth for the UI
         setHabits(prev => prev.map(h => h.id === id ? { ...h, ...updates } : h));
 
+        // Fire-and-forget activity log (no await, no fetchData)
         if (!isCompleted) {
             logActivity('habit', `Completed habit: ${habit.title}`);
         }
 
+        // Persist to server
         if (userId) {
             try {
                 await authFetch(`/api/habits/${id}`, {
                     method: 'PATCH',
-                    body: JSON.stringify({ ...updates, toggleDate: targetDate, userId: userId }),
+                    body: JSON.stringify({ completedDates: newCompletedDates, streak: newStreak, toggleDate: targetDate, userId: userId }),
                 });
             } catch (e) {
                 console.error("Failed to update habit remotely", e);
